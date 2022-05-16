@@ -83,8 +83,11 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
     // No collateralFactorMantissa may exceed this value
     uint internal constant collateralFactorMaxMantissa = 0.9e18; // 0.9
 
-    constructor() public {
-        admin = msg.sender;
+    address comp;
+
+    constructor(address comp_, address admin_) public {
+        admin = admin_;
+        comp = comp_;
     }
 
     /*** Assets You Are In ***/
@@ -1392,6 +1395,6 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
      * @return The address of COMP
      */
     function getCompAddress() public view returns (address) {
-        return 0xc00e94Cb662C3520282E6f5717214004A7f26888;
+        return comp;
     }
 }
