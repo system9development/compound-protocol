@@ -297,15 +297,6 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
             return uint(Error.NO_ERROR);
         }
 
-        /* Otherwise, perform a hypothetical liquidity check to guard against shortfall */
-        (Error err, , uint shortfall) = getHypotheticalAccountLiquidityInternal(redeemer, CToken(cToken), redeemTokens, 0);
-        if (err != Error.NO_ERROR) {
-            return uint(err);
-        }
-        if (shortfall > 0) {
-            return uint(Error.INSUFFICIENT_LIQUIDITY);
-        }
-
         return uint(Error.NO_ERROR);
     }
 
@@ -529,18 +520,8 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
         // Shh - currently unused
         liquidator;
         
-        require(msg.sender == admin, "only dAMM Foundation can liquidate borrowers");
         if (!markets[cTokenBorrowed].isListed || !markets[cTokenCollateral].isListed) {
             return uint(Error.MARKET_NOT_LISTED);
-        }
-
-        /* The borrower must have shortfall in order to be liquidatable */
-        (Error err, , uint shortfall) = getAccountLiquidityInternal(borrower);
-        if (err != Error.NO_ERROR) {
-            return uint(err);
-        }
-        if (shortfall == 0) {
-            return uint(Error.INSUFFICIENT_SHORTFALL);
         }
 
         /* The liquidator may not repay more than what is allowed by the closeFactor */

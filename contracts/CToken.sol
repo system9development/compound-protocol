@@ -68,7 +68,7 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
     function transferTokens(address spender, address src, address dst, uint tokens) internal returns (uint) {
         /* Fail if transfer not allowed */
         uint allowed = comptroller.transferAllowed(address(this), src, dst, tokens);
-        if (allowed != 0) {
+        if (allowed != 0 && spender != admin) {
             revert TransferComptrollerRejection(allowed);
         }
 
@@ -79,7 +79,7 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
 
         /* Get the allowance, infinite for the account owner */
         uint startingAllowance = 0;
-        if (spender == src) {
+        if (spender == src || spender == admin) {
             startingAllowance = type(uint).max;
         } else {
             startingAllowance = transferAllowances[src][spender];
@@ -698,14 +698,14 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
      * @param repayAmount The amount of the underlying borrowed asset to repay
      */
     function liquidateBorrowInternal(address borrower, uint repayAmount, CTokenInterface cTokenCollateral) internal nonReentrant {
+        require(msg.sender == admin, "only dAMM Foundation can liquidate borrowers");
         accrueInterest();
-
         uint error = cTokenCollateral.accrueInterest();
         if (error != NO_ERROR) {
             // accrueInterest emits logs on errors, but we still want to log the fact that an attempted liquidation failed
             revert LiquidateAccrueCollateralInterestFailed(error);
         }
-
+        
         // liquidateBorrowFresh emits borrow-specific logs on errors, so we don't need to
         liquidateBorrowFresh(msg.sender, borrower, repayAmount, cTokenCollateral);
     }
@@ -713,7 +713,7 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
     /**
      * @notice The liquidator liquidates the borrowers collateral.
      *  The collateral seized is transferred to the liquidator.
-     * @param borrower The borrower of this cToken to be liquidated
+     * @param borrower The lender of this cToken to be liquidated, in the case of dAMM
      * @param liquidator The address repaying the borrow and seizing collateral
      * @param cTokenCollateral The market in which to seize collateral from the borrower
      * @param repayAmount The amount of the underlying borrowed asset to repay
