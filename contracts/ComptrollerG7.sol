@@ -334,11 +334,7 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
 
     //Sets the notional limit of borrows for an address
     function setBorrowerLimits(address borrower, uint256 _borrowLimit) public override returns (uint) {
-        if (msg.sender != admin) {
-            return fail(Error.UNAUTHORIZED, FailureInfo.SET_BORROWER_LIMIT_CHECK);
-        }
-
-        if (borrowerArray[borrower] != true) {
+        if(msg.sender != admin || borrowerArray[borrower] != true) {
             return fail(Error.UNAUTHORIZED, FailureInfo.SET_BORROWER_LIMIT_CHECK);
         }
         borrowLimit[borrower] = _borrowLimit;
