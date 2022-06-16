@@ -52,7 +52,7 @@ contract ComptrollerV1Storage is UnitrollerAdminStorage {
      * @notice Per-account mapping of "assets you are in", capped by maxAssets
      */
     mapping(address => CToken[]) public accountAssets;
-    
+
     mapping(address => bool) public borrowerArray;
 
     mapping(address => uint256) public borrowLimit;

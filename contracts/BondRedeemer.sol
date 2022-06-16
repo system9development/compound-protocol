@@ -13,7 +13,7 @@ import "./openzeppelin/SafeERC20.sol";
 contract BondRedeemer is Ownable {
     //Incorrect boilerplate addresses
     using SafeERC20 for IERC20;
-    address public constant BDAMM = 0xc4F125F56e10980A26093c5ad22AEa1FA93cfd57; 
+    address public constant BDAMM = 0xc4F125F56e10980A26093c5ad22AEa1FA93cfd57;
     address public constant DAMM = 0xD9aA9fD99c2C085ce82A7f084A451C2460FCd73e;
     address public constant CHAINLINK_DAMM = 0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c; //using $LINK Oracle for testing
     address public admin;

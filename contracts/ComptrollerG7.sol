@@ -61,7 +61,7 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
 
     /// @notice Emitted when borrow cap guardian is changed
     event NewBorrowCapGuardian(address oldBorrowCapGuardian, address newBorrowCapGuardian);
-    
+
     /// @notice Emitted when new borrower is whitelisted
     event BorrowerWhitelisted(address borrower);
 
@@ -518,7 +518,7 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
         uint repayAmount) override external returns (uint) {
         // Shh - currently unused
         liquidator;
-        
+
         if (!markets[cTokenBorrowed].isListed || !markets[cTokenCollateral].isListed) {
             return uint(Error.MARKET_NOT_LISTED);
         }

@@ -705,7 +705,7 @@ abstract contract CToken is CTokenInterface, ExponentialNoError, TokenErrorRepor
             // accrueInterest emits logs on errors, but we still want to log the fact that an attempted liquidation failed
             revert LiquidateAccrueCollateralInterestFailed(error);
         }
-        
+
         // liquidateBorrowFresh emits borrow-specific logs on errors, so we don't need to
         liquidateBorrowFresh(msg.sender, borrower, repayAmount, cTokenCollateral);
     }
