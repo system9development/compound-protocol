@@ -18,7 +18,6 @@ abstract contract ComptrollerInterface {
     function redeemAllowed(address cToken, address redeemer, uint redeemTokens) virtual external returns (uint);
     function redeemVerify(address cToken, address redeemer, uint redeemAmount, uint redeemTokens) virtual external;
 
-    //Josh
     function whitelistBorrowerAdd(address borrower) virtual external returns (uint);
     function setBorrowerLimits(address borrower, uint256 _borrowLimit) virtual external returns (uint);
     function getBorrowerLimits(address borrower) virtual external returns (uint);

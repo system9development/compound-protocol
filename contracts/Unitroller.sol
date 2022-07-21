@@ -30,7 +30,14 @@ contract Unitroller is UnitrollerAdminStorage, ComptrollerErrorReporter {
       */
     event NewAdmin(address oldAdmin, address newAdmin);
 
-    constructor() public {
+    /**
+      * @notice Emitted _compAddress is initially set (when accepting the first comptroller implementation)
+      */
+    event NewCompAddress(address oldAddress, address newAddress);
+
+    address private _compAddress;
+
+    constructor() {
         // Set admin to caller
         admin = msg.sender;
     }
@@ -65,6 +72,13 @@ contract Unitroller is UnitrollerAdminStorage, ComptrollerErrorReporter {
         // Save current values for inclusion in log
         address oldImplementation = comptrollerImplementation;
         address oldPendingImplementation = pendingComptrollerImplementation;
+
+        if (_compAddress == address(0)) {
+            (bool success, bytes memory compAddress) = pendingComptrollerImplementation.call(abi.encodeWithSignature("getCompAddress()"));
+            require(success, "failed at getCompAddress()");
+            _compAddress = abi.decode(compAddress, (address));
+            emit NewCompAddress(address(0), _compAddress);
+        }
 
         comptrollerImplementation = pendingComptrollerImplementation;
 

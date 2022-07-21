@@ -61,7 +61,7 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
 
     /// @notice Emitted when borrow cap guardian is changed
     event NewBorrowCapGuardian(address oldBorrowCapGuardian, address newBorrowCapGuardian);
-    
+
     /// @notice Emitted when new borrower is whitelisted
     event BorrowerWhitelisted(address borrower);
 
@@ -83,7 +83,10 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
     // No collateralFactorMantissa may exceed this value
     uint internal constant collateralFactorMaxMantissa = 0.9e18; // 0.9
 
-    constructor() public {
+    address private _compAddress;
+
+    constructor(address compAddress) public {
+        _compAddress = compAddress;
         admin = msg.sender;
     }
 
@@ -515,7 +518,7 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
         uint repayAmount) override external returns (uint) {
         // Shh - currently unused
         liquidator;
-        
+
         if (!markets[cTokenBorrowed].isListed || !markets[cTokenCollateral].isListed) {
             return uint(Error.MARKET_NOT_LISTED);
         }
@@ -1369,6 +1372,6 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
      * @return The address of COMP
      */
     function getCompAddress() public view returns (address) {
-        return 0xc00e94Cb662C3520282E6f5717214004A7f26888;
+        return _compAddress;
     }
 }
