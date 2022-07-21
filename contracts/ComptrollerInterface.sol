@@ -21,7 +21,6 @@ abstract contract ComptrollerInterface {
     function whitelistBorrowerAdd(address borrower) virtual external returns (uint);
     function setBorrowerLimits(address borrower, uint256 _borrowLimit) virtual external returns (uint);
     function getBorrowerLimits(address borrower) virtual external returns (uint);
-    function getNotionalBorrows(address borrower) virtual external returns (uint256);
 
 
     function borrowAllowed(address cToken, address borrower, uint borrowAmount) virtual external returns (uint);
