@@ -353,24 +353,6 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
         return borrowLimit[borrower];
     }
 
-    //Returns outstanding borrows notional value
-    function getNotionalBorrowsInternal(address borrower) internal view returns (uint256) {
-        CToken[] memory cTokens = getAllMarkets();
-        uint numMarkets = cTokens.length;
-        uint balance = 0;
-
-        for(uint i = 0; i < numMarkets; i++) {
-            CToken cToken = cTokens[i];
-            balance += oracle.getUnderlyingPrice(cToken) * cToken.borrowBalanceStored(borrower);
-        }
-        return balance;
-    }
-
-    //returns notional value of a borrower's account
-    function getNotionalBorrows(address borrower) public view override returns (uint256) {
-        return getNotionalBorrowsInternal(borrower);
-    }
-
     /**
      * @notice Checks if the account should be allowed to borrow the underlying asset of the given market
      * @param cToken The market to verify the borrow against
@@ -404,9 +386,6 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
             return uint(Error.PRICE_ERROR);
         }
 
-        uint newBorrows = getNotionalBorrowsInternal(borrower) + borrowAmount;
-        require(newBorrows < getBorrowerLimits(borrower), "Borrow request exceeds permitted borrow limits");
-
         uint borrowCap = borrowCaps[cToken];
         // Borrow cap of 0 corresponds to unlimited borrowing
         if (borrowCap != 0) {
@@ -415,9 +394,13 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
             require(nextTotalBorrows < borrowCap, "market borrow cap reached");
         }
 
-        (Error err, , ) = getHypotheticalAccountLiquidityInternal(borrower, CToken(cToken), 0, borrowAmount);
+        (Error err, , uint shortfall) = getHypotheticalAccountLiquidityInternal(borrower, CToken(cToken), 0, borrowAmount);
         if (err != Error.NO_ERROR) {
             return uint(err);
+        }
+
+        if (shortfall > 0) {
+            return uint(Error.INSUFFICIENT_LIQUIDITY);
         }
 
         // Keep the flywheel moving
@@ -756,6 +739,13 @@ contract ComptrollerG7 is ComptrollerV5Storage, ComptrollerInterface, Comptrolle
 
         // For each asset the account is in
         CToken[] memory assets = accountAssets[account];
+
+        /*
+          Start with an assumed collateral value equal to the borrower limit. This sets a baseline for determining
+          whether borrows and redemptions should be allowed
+        */
+        vars.sumCollateral = borrowLimit[account];
+
         for (uint i = 0; i < assets.length; i++) {
             CToken asset = assets[i];
 
