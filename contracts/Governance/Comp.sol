@@ -12,7 +12,7 @@ contract Comp {
     uint8 public constant decimals = 18;
 
     /// @notice Total number of tokens in circulation
-    uint public constant totalSupply = 25000000e18; // 25 million dAMM
+    uint public constant totalSupply = 250000000e18; // 250 million dAMM
 
     /// @notice Allowance amounts on behalf of others
     mapping (address => mapping (address => uint96)) internal allowances;
